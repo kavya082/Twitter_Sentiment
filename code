@@ -1,0 +1,510 @@
+Importing Libraries
+!pip install better_profanity
+Collecting better_profanity
+  Using cached better_profanity-0.7.0-py3-none-any.whl (46 kB)
+Installing collected packages: better_profanity
+Successfully installed better_profanity-0.7.0
+import re 
+
+import numpy as np
+
+import tweepy 
+
+from tweepy import OAuthHandler 
+
+from textblob import TextBlob 
+
+import matplotlib.pyplot as plt
+
+import pandas as pd
+
+from wordcloud import WordCloud
+
+from better_profanity import profanity
+consumer_key = '7yTabphCVBnF91NZ4DICkYqa6'
+consumer_secret = 'aTrHF1fSP5jBwGwqhQGK7UsMQkfQZ8yiPmHjwPknAy5t68p1hU'
+access_token = '1261640525876047873-xblMWgFEVJZM2BKGnPuCXMeXwGmOpp'
+access_token_secret = 'RYwGLyPLHaeHKu5T7ivGqrQOYGnObwPZN4fSrdany4rE2'
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+
+api = tweepy.API(auth)
+# Input a query from the user
+
+query = input("Please enter your topic / person of interest: ")
+
+# In this case, we will input the query
+
+# Filter the query to remove retweets
+
+filtered = query + "-filter:retweets"
+
+# Generate the latest tweets on the given query 
+
+tweets = tweepy.Cursor(api.search_tweets, q=filtered,lang="en").items(100)
+
+# Create a list of the tweets, the users, and their location
+
+list1 = [[tweet.text, tweet.user.screen_name, tweet.user.location] for tweet in tweets]
+Please enter your topic / person of interest: amitshah
+# Convert the list into a dataframe
+
+df = pd.DataFrame(data=list1, 
+                    columns=['tweets','user', "location"])
+# Convert only the tweets into a list
+
+tweet_list = df.tweets.to_list()
+# Create a function to clean the tweets. Remove profanity, unnecessary characters, spaces, and stopwords.
+
+def clean_tweet(tweet):
+    if type(tweet) == np.float:
+        return ""
+    r = tweet.lower()
+    r = profanity.censor(r)
+    r = re.sub("'", "", r) # This is to avoid removing contractions in english
+    r = re.sub("@[A-Za-z0-9_]+","", r)
+    r = re.sub("#[A-Za-z0-9_]+","", r)
+    r = re.sub(r'http\S+', '', r)
+    r = re.sub('[()!?]', ' ', r)
+    r = re.sub('\[.*?\]',' ', r)
+    r = re.sub("[^a-z0-9]"," ", r)
+    r = r.split()
+    stopwords = ["for", "on", "an", "a", "of", "and", "in", "the", "to", "from"]
+    r = [w for w in r if not w in stopwords]
+    r = " ".join(word for word in r)
+    return r
+cleaned = [clean_tweet(tw) for tw in tweet_list]
+cleaned
+C:\Users\LAKSHYA\AppData\Local\Temp\ipykernel_16140\3588238994.py:4: DeprecationWarning: `np.float` is a deprecated alias for the builtin `float`. To silence this warning, use `float` by itself. Doing this will not modify any behavior and is safe. If you specifically wanted the numpy scalar type, use `np.float64` here.
+Deprecated in NumPy 1.20; for more details and guidance: https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+  if type(tweet) == np.float:
+['ye aahe power speech',
+ 'jay ho',
+ 'near 103 8 th dec',
+ '',
+ 'why are you bend de railing vishwas jeeto scheme',
+ '',
+ 'many online cloud company involved crypto forex etc trading indian deposit are mad',
+ 'please extend ssc date',
+ 'latest blore',
+ 'welcome new look local focallll',
+ 'true besides if you see condition govt hospitals you wouldnt want step inside one bes',
+ 'sir why is delhi police not able deal with land grab by samuday visesh new delhi even mcd is with',
+ 'with permission govt govt released these rapists jail',
+ 'good evening sir',
+ 'jay ho bjp sarkar',
+ 'shri amit shah union home minister received special blessings hh mahant swami maharaj peace progr',
+ 'jai ho bjp bjp',
+ 'when you will add bhojpuri 8th schedule indian constitution fulfill',
+ 'tharad b k',
+ 'pls include dr ajay alok bjp',
+ 'jay ho',
+ 'sushant justice fundamental right',
+ 'he is proof education barabar nahi hai every time we are cursing evm bjps victory',
+ '',
+ 'kindly request ssc please extend gd constable last date many students is last chance',
+ 'jay ho',
+ 'only hard working govt employees india like british rulers course',
+ 'kashmir files propaganda film israeli filmmaker had also claimed that all jury members fe',
+ 'chairman mc invited people my town my pride program',
+ 'welcome maam',
+ 'check your both dna with jalidar backstabbers i am sure it s match well',
+ 'must watch reality',
+ 'fight between congress bjp',
+ 'why you giving us vacancies if you dont let us apply whats our fault here your site is busy',
+ 'good catch sardardsai interview tai wa',
+ '',
+ 'atleast inflation control karo vo bhi bahut he',
+ 'you all agencies are waiting',
+ 'kindly look into it',
+ 'at local level bjp leaders are not less than any congress or aap leaders they are equally corrupt',
+ 'jay ho',
+ 'you are so beautiful maam',
+ 'dear sir m',
+ 'chal dekhte hai abhi behas se kuch fayda nai hai my predic',
+ 'jay ho',
+ 'ssc please extend form feel date',
+ 'sir shri pramukh swamiji had special corner me his heart because i had cleared their london temp',
+ 'honble national president shri ji received warm welcome ous people devgadh',
+ 'corruption',
+ 'check out our free dating app friendlymony enjoy unlimited free chat free video calls with unlimited matches',
+ 'today personally visited 15 houses 7 shops our colony requested them vote right candidate su',
+ 'how shameless people are you',
+ 'this sp must be removed looks like bureaucracy madhya pradesh is up its old tricks strict immediate act',
+ 'dear sir i had pointed out earlier also that condition working',
+ 'latest twitter trends 1 hobi 2 hobi 3 4 5 6',
+ 'sir many student are applying ssc gd but its been 5days they are unable do so beacause some thech',
+ 'video new caliphate izlamic republic india his shameless spineless puke worthy cab',
+ 'i once had guest who noticed our house help wiping',
+ 'biggest shame',
+ '',
+ 'right sir only bjp',
+ 'surprized',
+ 'extend date ssc gd',
+ 'promoting because is busy with',
+ '',
+ 'here are some glimpses pavilion at kashi tamil sangamam currently ongoing at banaras hindu university',
+ 'tool kit started',
+ 'union home minister ji accuses congress not doing anything preserve glorious history tribals sa',
+ 'link not working properly increase date submitting application form',
+ 'kindly look into this matter bcz we r staying chhatrapati shivaji maharajs soil not arab',
+ 'many many congretulations award huge huge huge congretulations',
+ 'it is intriguing why state bjp seemi',
+ 'accidental prime minister',
+ 'building opinion based bjps reactions reaction bjp',
+ '',
+ 'bjp turned down gujrat police cisf now controlling mundra port',
+ 'so what do we do so does farmers son become farmer tell me',
+ '',
+ 'might win delhi reason mcd under bjp never worked sorry say but it s truth',
+ 'today s debate chandigarh railway station',
+ 'dear',
+ '',
+ 'resp',
+ 'this is why abominable colonial cultural assimilation brits found higher support amongst segmen',
+ 'gujarat 2022 elections will be like punjab 2017 gujara',
+ '',
+ '',
+ 'latest twitter trends 1 hobi 2 hobi 3 4 5 6',
+ 'dear opposition there is not one adani one ambani gujarat but there is one adani one ambani every h',
+ 'may be d time has changed but characters dont',
+ 'bjp has met people s expectations provided transparent govt with zero tolerance towards security issues exce',
+ 'well said indian family courts are best example collegium has twisted abuse',
+ 'check out new link youtube news',
+ 'sir i have completed my form at lest 7 8 times but para 20 not working website due i cant submit my f',
+ 'vote bjp',
+ 'sushant justice fundamental right',
+ 'bjp s manifesto promises uniform civil code it strongly envisions central law same excerpts un',
+ 'check out this comedy video funtoosh more similar videos download app now',
+ 'mr amit he is head baps ok tum kuch mat karo amit shah sab kuch kar lege amp we guj',
+ 'at least add our mothertongue eighth schedule sarrr which you promised 2014']
+# Define the sentiment objects using TextBlob
+
+sentiment_objects = [TextBlob(tweet) for tweet in cleaned]
+
+sentiment_objects[0].polarity, sentiment_objects[0]
+(0.0, TextBlob("ye aahe power speech"))
+# Create a list of polarity values and tweet text
+
+sentiment_values = [[tweet.sentiment.polarity, str(tweet)] for tweet in sentiment_objects]
+
+# Print the value of the 0th row.
+
+sentiment_values[0]
+# Print all the sentiment values
+
+sentiment_values[0:99]
+[[0.0, 'ye aahe power speech'],
+ [0.0, 'jay ho'],
+ [0.1, 'near 103 8 th dec'],
+ [0.0, ''],
+ [0.0, 'why are you bend de railing vishwas jeeto scheme'],
+ [0.0, ''],
+ [-0.0625,
+  'many online cloud company involved crypto forex etc trading indian deposit are mad'],
+ [0.0, 'please extend ssc date'],
+ [0.5, 'latest blore'],
+ [0.31212121212121213, 'welcome new look local focallll'],
+ [0.35,
+  'true besides if you see condition govt hospitals you wouldnt want step inside one bes'],
+ [-0.05681818181818182,
+  'sir why is delhi police not able deal with land grab by samuday visesh new delhi even mcd is with'],
+ [-0.1, 'with permission govt govt released these rapists jail'],
+ [0.7, 'good evening sir'],
+ [0.0, 'jay ho bjp sarkar'],
+ [0.35714285714285715,
+  'shri amit shah union home minister received special blessings hh mahant swami maharaj peace progr'],
+ [0.0, 'jai ho bjp bjp'],
+ [0.0, 'when you will add bhojpuri 8th schedule indian constitution fulfill'],
+ [0.0, 'tharad b k'],
+ [0.0, 'pls include dr ajay alok bjp'],
+ [0.0, 'jay ho'],
+ [0.2857142857142857, 'sushant justice fundamental right'],
+ [0.0,
+  'he is proof education barabar nahi hai every time we are cursing evm bjps victory'],
+ [0.0, ''],
+ [0.275,
+  'kindly request ssc please extend gd constable last date many students is last chance'],
+ [0.0, 'jay ho'],
+ [-0.09722222222222222,
+  'only hard working govt employees india like british rulers course'],
+ [-0.1,
+  'kashmir files propaganda film israeli filmmaker had also claimed that all jury members fe'],
+ [0.0, 'chairman mc invited people my town my pride program'],
+ [0.8, 'welcome maam'],
+ [0.5,
+  'check your both dna with jalidar backstabbers i am sure it s match well'],
+ [0.0, 'must watch reality'],
+ [0.0, 'fight between congress bjp'],
+ [0.1,
+  'why you giving us vacancies if you dont let us apply whats our fault here your site is busy'],
+ [0.7, 'good catch sardardsai interview tai wa'],
+ [0.0, ''],
+ [0.0, 'atleast inflation control karo vo bhi bahut he'],
+ [0.0, 'you all agencies are waiting'],
+ [0.6, 'kindly look into it'],
+ [-0.1388888888888889,
+  'at local level bjp leaders are not less than any congress or aap leaders they are equally corrupt'],
+ [0.0, 'jay ho'],
+ [0.85, 'you are so beautiful maam'],
+ [0.0, 'dear sir m'],
+ [0.0, 'chal dekhte hai abhi behas se kuch fayda nai hai my predic'],
+ [0.0, 'jay ho'],
+ [0.0, 'ssc please extend form feel date'],
+ [0.35714285714285715,
+  'sir shri pramukh swamiji had special corner me his heart because i had cleared their london temp'],
+ [0.7,
+  'honble national president shri ji received warm welcome ous people devgadh'],
+ [0.0, 'corruption'],
+ [0.4,
+  'check out our free dating app friendlymony enjoy unlimited free chat free video calls with unlimited matches'],
+ [0.14285714285714285,
+  'today personally visited 15 houses 7 shops our colony requested them vote right candidate su'],
+ [0.0, 'how shameless people are you'],
+ [0.1,
+  'this sp must be removed looks like bureaucracy madhya pradesh is up its old tricks strict immediate act'],
+ [0.0, 'dear sir i had pointed out earlier also that condition working'],
+ [0.5, 'latest twitter trends 1 hobi 2 hobi 3 4 5 6'],
+ [0.0,
+  'sir many student are applying ssc gd but its been 5days they are unable do so beacause some thech'],
+ [0.23484848484848483,
+  'video new caliphate izlamic republic india his shameless spineless puke worthy cab'],
+ [0.0, 'i once had guest who noticed our house help wiping'],
+ [0.0, 'biggest shame'],
+ [0.0, ''],
+ [0.14285714285714285, 'right sir only bjp'],
+ [0.0, 'surprized'],
+ [0.0, 'extend date ssc gd'],
+ [0.1, 'promoting because is busy with'],
+ [0.0, ''],
+ [0.0,
+  'here are some glimpses pavilion at kashi tamil sangamam currently ongoing at banaras hindu university'],
+ [0.0, 'tool kit started'],
+ [0.0,
+  'union home minister ji accuses congress not doing anything preserve glorious history tribals sa'],
+ [0.0, 'link not working properly increase date submitting application form'],
+ [0.6,
+  'kindly look into this matter bcz we r staying chhatrapati shivaji maharajs soil not arab'],
+ [0.44000000000000006,
+  'many many congretulations award huge huge huge congretulations'],
+ [0.30000000000000004, 'it is intriguing why state bjp seemi'],
+ [0.0, 'accidental prime minister'],
+ [0.0, 'building opinion based bjps reactions reaction bjp'],
+ [0.0, ''],
+ [-0.15555555555555559,
+  'bjp turned down gujrat police cisf now controlling mundra port'],
+ [0.0, 'so what do we do so does farmers son become farmer tell me'],
+ [0.0, ''],
+ [0.15000000000000002,
+  'might win delhi reason mcd under bjp never worked sorry say but it s truth'],
+ [0.0, 'today s debate chandigarh railway station'],
+ [0.0, 'dear'],
+ [0.0, ''],
+ [0.0, 'resp'],
+ [0.175,
+  'this is why abominable colonial cultural assimilation brits found higher support amongst segmen'],
+ [0.0, 'gujarat 2022 elections will be like punjab 2017 gujara'],
+ [0.0, ''],
+ [0.0, ''],
+ [0.5, 'latest twitter trends 1 hobi 2 hobi 3 4 5 6'],
+ [0.0,
+  'dear opposition there is not one adani one ambani gujarat but there is one adani one ambani every h'],
+ [0.0, 'may be d time has changed but characters dont'],
+ [0.0,
+  'bjp has met people s expectations provided transparent govt with zero tolerance towards security issues exce'],
+ [0.25,
+  'well said indian family courts are best example collegium has twisted abuse'],
+ [0.13636363636363635, 'check out new link youtube news'],
+ [-0.125,
+  'sir i have completed my form at lest 7 8 times but para 20 not working website due i cant submit my f'],
+ [0.0, 'vote bjp'],
+ [0.2857142857142857, 'sushant justice fundamental right'],
+ [0.14444444444444443,
+  'bjp s manifesto promises uniform civil code it strongly envisions central law same excerpts un'],
+ [0.25,
+  'check out this comedy video funtoosh more similar videos download app now'],
+ [0.5,
+  'mr amit he is head baps ok tum kuch mat karo amit shah sab kuch kar lege amp we guj']]
+# Create a dataframe of each tweet against its polarity
+
+sentiment_df = pd.DataFrame(sentiment_values, columns=["polarity", "tweet"])
+
+sentiment_df
+
+# Save the polarity column as 'n'.
+
+n=sentiment_df["polarity"]
+
+# Convert this column into a series, 'm'. 
+
+m=pd.Series(n)
+
+m
+0     0.000000
+1     0.000000
+2     0.100000
+3     0.000000
+4     0.000000
+        ...   
+95    0.285714
+96    0.144444
+97    0.250000
+98    0.500000
+99   -0.300000
+Name: polarity, Length: 100, dtype: float64
+ 
+# Initialize variables, 'pos', 'neg', 'neu'.
+
+pos=0
+neg=0
+neu=0
+
+# Create a loop to classify the tweets as Positive, Negative, or Neutral.
+# Count the number of each.
+
+for items in m:
+    if items>0:
+        print("Positive")
+        pos=pos+1
+    elif items<0:
+        print("Negative")
+        neg=neg+1
+    else:
+        print("Neutral")
+        neu=neu+1
+        
+print(pos,neg,neu)
+Neutral
+Neutral
+Positive
+Neutral
+Neutral
+Neutral
+Negative
+Neutral
+Positive
+Positive
+Positive
+Negative
+Negative
+Positive
+Neutral
+Positive
+Neutral
+Neutral
+Neutral
+Neutral
+Neutral
+Positive
+Neutral
+Neutral
+Positive
+Neutral
+Negative
+Negative
+Neutral
+Positive
+Positive
+Neutral
+Neutral
+Positive
+Positive
+Neutral
+Neutral
+Neutral
+Positive
+Negative
+Neutral
+Positive
+Neutral
+Neutral
+Neutral
+Neutral
+Positive
+Positive
+Neutral
+Positive
+Positive
+Neutral
+Positive
+Neutral
+Positive
+Neutral
+Positive
+Neutral
+Neutral
+Neutral
+Positive
+Neutral
+Neutral
+Positive
+Neutral
+Neutral
+Neutral
+Neutral
+Neutral
+Positive
+Positive
+Positive
+Neutral
+Neutral
+Neutral
+Negative
+Neutral
+Neutral
+Positive
+Neutral
+Neutral
+Neutral
+Neutral
+Positive
+Neutral
+Neutral
+Neutral
+Positive
+Neutral
+Neutral
+Neutral
+Positive
+Positive
+Negative
+Neutral
+Positive
+Positive
+Positive
+Positive
+Negative
+35 9 56
+pieLabels=["Positive","Negative","Neutral"]
+
+populationShare=[pos,neg,neu]
+
+figureObject, axesObject = plt.subplots()
+
+axesObject.pie(populationShare,labels=pieLabels,autopct='%1.2f',startangle=90)
+
+axesObject.axis('equal')
+
+plt.show()
+
+# Display the number of twitter users who feel a certain way about the given topic.
+
+print("%f percent of twitter users feel positive about %s"%(pos,query))
+
+print("%f percent of twitter users feel negative about %s"%(neg,query))
+
+print("%f percent of twitter users feel neutral about %s"%(neu,query))
+35.000000 percent of twitter users feel positive about amitshah
+9.000000 percent of twitter users feel negative about amitshah
+56.000000 percent of twitter users feel neutral about amitshah
+# Create a Wordcloud from the tweets
+
+all_words = ' '.join([text for text in cleaned])
+wordcloud = WordCloud(width=800, height=500, random_state=21, max_font_size=110).generate(all_words)
+
+plt.figure(figsize=(10, 7))
+plt.imshow(wordcloud, interpolation="bilinear")
+plt.axis('off')
+plt.show()
+
+ 
